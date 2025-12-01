@@ -59,21 +59,21 @@ INSERT INTO BorrowingRecords (BORROW_ID, MEMBER_ID, BOOK_ID, BORROW_DATE, RETURN
 (7, 7, 6, '2023-07-18', NULL); 
 
 -- Information Retrieval:
--- a,
+-- a, Retrieve a list of books borrowed by specific member
 SELECT B.BOOK_ID, B.TITLE FROM Books B JOIN BorrowingRecords BR on B.BOOK_ID=BR.BOOK_ID;
 
--- b,
+-- b, Find members who have overdue books
 SELECT BR.BORROW_ID, BR.MEMBER_ID, M.NAME, B.TITLE, BR.BORROW_DATE, BR.RETURN_DATE FROM
 BorrowingRecords BR JOIN Members M ON BR.MEMBER_ID = M.MEMBER_ID
 JOIN Books B ON BR.BOOK_ID = B.BOOK_ID
 WHERE BR.RETURN_DATE IS NULL
 AND BR.BORROW_DATE < DATE_SUB(CURDATE(), INTERVAL 30 DAY);
 
--- c,
+-- c, Retrieve books by genre along with the count of all available copies
 SELECT  Genre, SUM(AVAILABLE_COPIES) as total_count 
 FROM Books GROUP BY Genre;
 
--- d,
+-- d, Find the most borrowed books overall
 SELECT 
 b.BOOK_ID,
 b.TITLE,
@@ -87,7 +87,7 @@ FROM (SELECT COUNT(BR.BOOK_ID) AS borrow_times
 FROM BorrowingRecords BR
 GROUP BY BR.BOOK_ID) AS counts);
 
--- e,
+-- e, Retrieve members who have borrowed books from at least three different genres
 SELECT 
 br.MEMBER_ID,
 m.NAME,
@@ -99,17 +99,17 @@ GROUP BY br.MEMBER_ID, m.NAME
 HAVING COUNT(DISTINCT b.Genre) >= 3;
 
 -- Reporting and Analytics:
--- a,
+-- a, Calcualte the total number of books borrowed per month
 SELECT DATE_FORMAT(BORROW_DATE, '%Y-%m') AS Month, Count(*) FROM BorrowingRecords GROUP BY Month;
 
--- b,
+-- b, Find the top three most active members based on number of books borrowed
 SELECT br.MEMBER_ID, m.NAME, COUNT(br.BORROW_ID) as total FROM
 BorrowingRecords br JOIN Members m
 ON br.MEMBER_ID = m.MEMBER_ID
 GROUP BY br.MEMBER_ID, m.NAME
 ORDER BY total desc limit 3;
 
--- c,
+-- c, Retrieve authors whose books have been borrowed at least 10 times
 SELECT 
     b.AUTHOR,
     COUNT(br.BORROW_ID) AS Total
@@ -119,7 +119,7 @@ JOIN BorrowingRecords br
 GROUP BY b.AUTHOR
 HAVING COUNT(br.BORROW_ID) >= 10;
 
--- d,
+-- d, Identify members who have never borrowed a book
 SELECT br.MEMBER_ID, m.NAME FROM BorrowingRecords br JOIN
 Members m ON br.MEMBER_ID = m.MEMBER_ID
 WHERE br.MEMBER_ID IS NULL;
